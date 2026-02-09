@@ -16,25 +16,25 @@ export type Project = {
 
 export function useProjects() {
   return useQuery({
-    queryKey: [api.projects.list.path],
+    queryKey: ["projects"],
     queryFn: async () => {
-      const res = await fetch(api.projects.list.path);
+      const res = await fetch("/folioabid/projects.json");
       if (!res.ok) throw new Error("Failed to fetch projects");
       const data = await res.json();
-      return api.projects.list.responses[200].parse(data);
+      return data as Project[];
     },
   });
 }
 
 export function useProjectsByCategory(category: string) {
   return useQuery({
-    queryKey: [api.projects.getByCategory.path, category],
+    queryKey: ["projects", category],
     queryFn: async () => {
-      const url = buildUrl(api.projects.getByCategory.path, { category });
-      const res = await fetch(url);
+      const res = await fetch("/folioabid/projects.json");
       if (!res.ok) throw new Error(`Failed to fetch ${category} projects`);
       const data = await res.json();
-      return api.projects.getByCategory.responses[200].parse(data);
+      const projects = data as Project[];
+      return projects.filter((p) => p.category === category);
     },
     enabled: !!category,
   });
@@ -42,14 +42,13 @@ export function useProjectsByCategory(category: string) {
 
 export function useProject(id: number) {
   return useQuery({
-    queryKey: [api.projects.get.path, id],
+    queryKey: ["project", id],
     queryFn: async () => {
-      const url = buildUrl(api.projects.get.path, { id });
-      const res = await fetch(url);
-      if (res.status === 404) return null;
+      const res = await fetch("/folioabid/projects.json");
       if (!res.ok) throw new Error("Failed to fetch project");
       const data = await res.json();
-      return api.projects.get.responses[200].parse(data);
+      const projects = data as Project[];
+      return projects.find((p) => p.id === id) || null;
     },
     enabled: !!id,
   });
