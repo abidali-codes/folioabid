@@ -9,6 +9,7 @@ import { z } from "zod";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
+import { useState } from "react";
 
 const contactSchema = z.object({
   name: z.string().min(2, "Name is required"),
@@ -20,6 +21,7 @@ type ContactFormValues = z.infer<typeof contactSchema>;
 
 export default function Contact() {
   const { toast } = useToast();
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const form = useForm<ContactFormValues>({
     resolver: zodResolver(contactSchema),
     defaultValues: {
@@ -29,20 +31,50 @@ export default function Contact() {
     },
   });
 
-  function onSubmit(data: ContactFormValues) {
-    // In a real app, this would send to an API
-    console.log(data);
-    toast({
-      title: "Message Sent!",
-      description: "Thanks for reaching out. I'll get back to you soon.",
-    });
-    form.reset();
+  async function onSubmit(data: ContactFormValues) {
+    setIsSubmitting(true);
+    try {
+      const response = await fetch("https://api.web3forms.com/submit", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          access_key: "140c8d58-1ee4-42a5-8c34-646dbddad1d2", // Get this from web3forms.com
+          name: data.name,
+          email: data.email,
+          message: data.message,
+          subject: `New Contact Form Message from ${data.name}`,
+        }),
+      });
+
+      const result = await response.json();
+      
+      if (result.success) {
+        toast({
+          title: "Message Sent!",
+          description: "Thanks for reaching out. I'll get back to you soon.",
+          variant: "success",
+        });
+        form.reset();
+      } else {
+        throw new Error("Failed to send message");
+      }
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "Failed to send message. Please try again or email directly.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsSubmitting(false);
+    }
   }
 
   return (
-    <div className="min-h-screen pt-32 pb-20 px-6 bg-secondary/20">
+    <div className="min-h-screen pt-24 md:pt-32 pb-20 px-4 md:px-6 bg-secondary/20">
       <div className="max-w-7xl mx-auto">
-        <div className="grid lg:grid-cols-2 gap-12 items-start">
+        <div className="grid lg:grid-cols-2 gap-8 md:gap-12 items-start">
           
           {/* Contact Info */}
           <motion.div
@@ -50,23 +82,23 @@ export default function Contact() {
             animate={{ opacity: 1, x: 0 }}
             transition={{ duration: 0.6 }}
           >
-            <h1 className="font-display text-4xl md:text-5xl font-bold mb-6">
+            <h1 className="font-display text-3xl md:text-4xl lg:text-5xl font-bold mb-4 md:mb-6">
               Let's start a conversation
             </h1>
-            <p className="text-xl text-muted-foreground mb-12 leading-relaxed">
+            <p className="text-lg md:text-xl text-muted-foreground mb-8 md:mb-12 leading-relaxed">
               I'm currently available for freelance projects and open to new opportunities. 
               Whether you have a question or just want to say hi, I'll try my best to get back to you!
             </p>
 
-            <div className="space-y-8">
+            <div className="space-y-6 md:space-y-8">
               <div className="flex items-start gap-4">
                 <div className="w-12 h-12 bg-white rounded-2xl flex items-center justify-center shadow-sm border border-border/50 shrink-0">
                   <Mail className="w-6 h-6 text-primary" />
                 </div>
-                <div>
+                <div className="min-w-0">
                   <h3 className="font-bold text-lg">Email Me</h3>
-                  <a href="mailto:hello@adilali.dev" className="text-muted-foreground hover:text-primary transition-colors">
-                    hello@adilali.dev
+                  <a href="mailto:codenergy26@gmail.com" className="text-muted-foreground hover:text-primary transition-colors break-all">
+                    abidali@gmail.com
                   </a>
                 </div>
               </div>
@@ -77,7 +109,7 @@ export default function Contact() {
                 </div>
                 <div>
                   <h3 className="font-bold text-lg">Call Me</h3>
-                  <p className="text-muted-foreground">+1 (555) 123-4567</p>
+                  <p className="text-muted-foreground">+971 56 293 0563</p>
                 </div>
               </div>
 
@@ -87,7 +119,7 @@ export default function Contact() {
                 </div>
                 <div>
                   <h3 className="font-bold text-lg">Location</h3>
-                  <p className="text-muted-foreground">San Francisco, CA</p>
+                  <p className="text-muted-foreground">Sharjah, UAE</p>
                 </div>
               </div>
             </div>
@@ -99,7 +131,7 @@ export default function Contact() {
             animate={{ opacity: 1, x: 0 }}
             transition={{ duration: 0.6, delay: 0.2 }}
           >
-            <Card className="p-8 shadow-xl border-border/50">
+            <Card className="p-6 md:p-8 shadow-xl border-border/50">
               <Form {...form}>
                 <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
                   <FormField
@@ -139,7 +171,7 @@ export default function Contact() {
                         <FormControl>
                           <Textarea 
                             placeholder="Tell me about your project..." 
-                            className="min-h-[160px] bg-secondary/20 resize-none" 
+                            className="min-h-[140px] md:min-h-[160px] bg-secondary/20 resize-none" 
                             {...field} 
                           />
                         </FormControl>
@@ -148,8 +180,13 @@ export default function Contact() {
                     )}
                   />
 
-                  <Button type="submit" size="lg" className="w-full rounded-full h-12 text-base shadow-lg shadow-primary/25">
-                    Send Message
+                  <Button 
+                    type="submit" 
+                    size="lg" 
+                    className="w-full rounded-full h-12 text-base shadow-lg shadow-primary/25"
+                    disabled={isSubmitting}
+                  >
+                    {isSubmitting ? "Sending..." : "Send Message"}
                   </Button>
                 </form>
               </Form>

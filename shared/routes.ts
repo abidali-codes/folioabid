@@ -1,30 +1,47 @@
-import { z } from 'zod';
-import { insertProjectSchema, projects } from './schema';
+import { z } from "zod";
+
+const projectImageSchema = z.object({
+  id: z.number(),
+  imageUrl: z.string(),
+  caption: z.string().optional(),
+});
+
+const projectSchema = z.object({
+  id: z.number(),
+  title: z.string(),
+  description: z.string(),
+  category: z.enum(["fullstack", "uiux", "graphic", "animation"]),
+  subCategory: z.enum(["logo", "package", "social", "other"]).optional(),
+  thumbnailUrl: z.string(),
+  liveUrl: z.string().nullable().optional(),
+  technologies: z.array(z.string()).nullable().optional(),
+  images: z.array(projectImageSchema),
+});
 
 export const api = {
   projects: {
     list: {
-      method: 'GET' as const,
-      path: '/api/projects',
+      method: "GET" as const,
+      path: "/api/projects",
       responses: {
-        200: z.array(z.custom<typeof projects.$inferSelect & { images: { id: number, imageUrl: string }[] }>()),
+        200: z.array(projectSchema),
       },
     },
     get: {
-      method: 'GET' as const,
-      path: '/api/projects/:id',
+      method: "GET" as const,
+      path: "/api/projects/:id",
       responses: {
-        200: z.custom<typeof projects.$inferSelect & { images: { id: number, imageUrl: string }[] }>(),
+        200: projectSchema,
         404: z.object({ message: z.string() }),
       },
     },
     getByCategory: {
-      method: 'GET' as const,
-      path: '/api/projects/category/:category',
+      method: "GET" as const,
+      path: "/api/projects/category/:category",
       responses: {
-        200: z.array(z.custom<typeof projects.$inferSelect & { images: { id: number, imageUrl: string }[] }>()),
+        200: z.array(projectSchema),
       },
-    }
+    },
   },
 };
 

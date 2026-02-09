@@ -1,103 +1,386 @@
-import { db } from "./db";
-import { projects, projectImages, type Project, type InsertProject, type ProjectWithImages } from "@shared/schema";
-import { eq } from "drizzle-orm";
+// Simple in-memory storage with no database.
+// You can customize this array to add/edit projects.
+
+export type ProjectCategory = "fullstack" | "uiux" | "graphic" | "animation";
+
+export interface ProjectImage {
+  id: number;
+  projectId: number;
+  imageUrl: string;
+  caption?: string;
+}
+
+export interface Project {
+  id: number;
+  title: string;
+  description: string;
+  category: ProjectCategory;
+  // For graphic design work, you can use this to distinguish logo / package / social media / other.
+  subCategory?: "logo" | "package" | "social" | "other";
+  thumbnailUrl: string;
+  liveUrl?: string | null;
+  technologies?: string[] | null;
+}
+
+export type ProjectWithImages = Project & { images: ProjectImage[] };
+
+// NOTE: image URLs assume Express serves `server/images` at `/images`.
+const projectsData: ProjectWithImages[] = [
+  {
+    id: 1,
+    title: "Codenergy",
+    description: "Fullstack e‑commerce platform with modern UI and smooth checkout experience.",
+    category: "fullstack",
+    thumbnailUrl: "/images/fullstack1/codenergy3.PNG",
+    liveUrl: "https://codenergy.ae/",
+    technologies: ["React", "Node.js", "TypeScript"],
+    images: [
+      {
+        id: 1,
+        projectId: 1,
+        imageUrl: "/images/fullstack1/codenergy3.PNG",
+        caption: "Codenergy",
+      },
+    ],
+  },
+  {
+    id: 2,
+    title: "TechSynergy Website",
+    description: "designed and developed a robust enterprise-grade platform for TechSynergy, a premier IT solutions provider. The website is engineered to showcase a complex portfolio of services, including cybersecurity, cloud virtualization, and managed IT infrastructure. Featuring a sleek, professional UI/UX, the site simplifies technical data for corporate decision-makers. Optimized for high-speed performance and SEO, this digital hub integrates strategic lead generation pathways and a mobile-first architecture, positioning TechSynergy as a trusted leader in Pakistan’s technology sector.",
+    category: "fullstack",
+    thumbnailUrl: "/images/fullstack2/techsynergy1.PNG",
+    liveUrl: "https://techsynergypk.com/",
+    technologies: ["React", "Tailwind CSS"],
+    images: [
+      {
+        id: 2,
+        projectId: 2,
+        imageUrl: "/images/fullstack2/techsynergy1.PNG",
+        caption: "TechSynergy hero section",
+      },
+    ],
+  },
+  {
+    id: 3,
+    title: "Wott Dashboard",
+    description: "Transform your software vision into reality with my custom SaaS development. I designed and developed the WoTT dashboard, a high-performance platform specializing in real-time data visualization and IoT monitoring. This project features a clean, enterprise-grade UI/UX with secure login flows, administrative controls, and advanced charting. Optimized for speed and scalability, this project reflects my expertise as a solo developer building complex, data-driven applications for the global tech sector.",
+    category: "fullstack",
+    thumbnailUrl: "/images/fullstack6/wott-dashboardthumbnail.png",
+    liveUrl: null,
+    technologies: ["React", "TypeScript"],
+    images: [
+      {
+        id: 3,
+        projectId: 3,
+        imageUrl: "/images/fullstack6/wott-dashboard.png",
+        caption: "Wott Dashboard",
+      },
+    ],
+  },
+  {
+    id: 4,
+    title: "Food Heist ",
+    description: "designed and developed a high-performance B2B website for Food Heist, an Australian leader in contract food manufacturing. Our team engineered a responsive, mobile-first platform focused on UI/UX excellence, fast loading speeds, and lead generation. By highlighting Food Heist’s industrial capacity, HACCP compliance, and private labeling services, we created a digital identity that drives growth. This project showcases our expertise in FMCG web design and strategic SEO for manufacturers.",
+    category: "fullstack",
+    thumbnailUrl: "/images/fullstack5/fh.PNG",
+    liveUrl: null,
+    technologies: ["React", "TypeScript"],
+    images: [
+      {
+        id: 4,
+        projectId: 4,
+        imageUrl: "/images/fullstack5/fh.PNG",
+        caption: "Food Heist | High-Performance B2B Manufacturing Platform",
+      },
+    ],
+  },
+  
+  {
+    id: 5,
+    title: "Texora",
+    description: "designed and developed a high-performance B2B platform for Texora Exports, a specialist in global textile manufacturing and garment sourcing. The website features a conversion-focused UI/UX, built to showcase premium apparel catalogs and private-label services to international buyers. Engineered for global accessibility, the site includes a mobile-first responsive design, optimized load speeds, and a secure backend. This project highlights our expertise in creating scalable digital solutions for the export industry, bridging the gap between manufacturing excellence and global retail markets.",
+    category: "fullstack",
+    thumbnailUrl: "/images/fullstack4/texora.PNG",
+    liveUrl: null,
+    technologies: ["React", "TypeScript"],
+    images: [
+      {
+        id: 5,
+        projectId: 5,
+        imageUrl: "/images/fullstack4/texora.PNG",
+        caption: "Texora Website",
+      },
+    ],
+  },
+  
+  
+  {
+    id: 6,
+    title: "FatMonks Website",
+    description: "designed and developed a dynamic, mobile-first website for Fat Monks, a leader in Western Sydney’s pizza scene. The platform is engineered for high-conversion food commerce, featuring an intuitive UI/UX that streamlines online ordering and menu exploration. We prioritized high-quality visual storytelling to showcase their diverse range, from halal and keto-friendly options to unique signature pizzas. With integrated SEO and optimized performance, the site enhances local search visibility while providing a seamless, fast-loading experience for hungry customers across Sydney.",
+    category: "fullstack",
+    thumbnailUrl: "/images/fullstack3/fatmonksweb.PNG",
+    liveUrl: "https://fatmonks.com.au/",
+    technologies: ["React", "Framer Motion"],
+    images: [
+      {
+        id: 6,
+        projectId: 6,
+        imageUrl: "/images/fullstack3/fatmonksweb.PNG",
+        caption: "FatMonks homepage",
+      },
+    ],
+  },
+  {
+    id: 7,
+    title: "BisBus Fleet Management UI",
+    description:
+      "A clean and modern web UI for BisBus, focusing on fleet monitoring, route planning, and ticket management. Designed for clarity and quick decision-making for operators.",
+    category: "uiux",
+    thumbnailUrl: "/images/uiux/bisbus-ui.jfif",
+    liveUrl: null,
+    technologies: ["Figma", "UI/UX", "Design System"],
+    images: [
+      {
+        id: 7,
+        projectId: 7,
+        imageUrl: "/images/uiux/bisbus-ui.jfif",
+        caption: "Dashboard interface for BisBus",
+      },
+    ],
+  },
+  {
+    id: 8,
+    title: "Kiddemy Mobile App UI",
+    description:
+      "End-to-end UI/UX for Kiddemy, an educational mobile app for children. Designed playful, accessible screens that balance vibrant visuals with simple navigation.",
+    category: "uiux",
+    thumbnailUrl: "/images/uiux2/kiddemy-app design.png",
+    liveUrl: null,
+    technologies: ["Figma", "Mobile UI", "Prototyping"],
+    images: [
+      {
+        id: 8,
+        projectId: 8,
+        imageUrl: "/images/uiux2/kiddemy-app design.png",
+        caption: "Kiddemy app screens",
+      },
+    ],
+  },
+  {
+    id: 9,
+    title: "Ozuo Web Experience",
+    description:
+      "Marketing website UI for Ozuo, focused on clear storytelling, bold typography, and conversion-oriented layout for a tech-forward brand.",
+    category: "uiux",
+    thumbnailUrl: "/images/uiux3/ozuo-web.png",
+    liveUrl: null,
+    technologies: ["Figma", "Web UI", "Landing Page"],
+    images: [
+      {
+        id: 9,
+        projectId: 9,
+        imageUrl: "/images/uiux3/ozuo-web.png",
+        caption: "Ozuo web homepage design",
+      },
+    ],
+  },
+  {
+    id: 10,
+    title: "WeChef Food App UI",
+    description:
+      "Multi-screen app design for WeChef, covering onboarding, menu browsing, and ordering flows with emphasis on appetizing visuals and usability.",
+    category: "uiux",
+    thumbnailUrl: "/images/uiux4/wechef-appdesign1.png",
+    liveUrl: null,
+    technologies: ["Figma", "Design System", "Mobile UI"],
+    images: [
+      {
+        id: 10,
+        projectId: 10,
+        imageUrl: "/images/uiux4/wechef-appdesign.png",
+        caption: "WeChef main app layout",
+      },
+      
+    ],
+  },
+  {
+    id: 11,
+    title: "DogProtocol Crypto Dashboard",
+    description:
+      "A web dashboard UI for DogProtocol, a crypto-focused product. Designed to present complex token and market data in a friendly, approachable interface.",
+    category: "uiux",
+    thumbnailUrl: "/images/uiux5/dogprotocol-crypto-web.png",
+    liveUrl: null,
+    technologies: ["Figma", "Dashboard UI", "Crypto"],
+    images: [
+      {
+        id: 13,
+        projectId: 11,
+        imageUrl: "/images/uiux5/dogprotocol-crypto-web.png",
+        caption: "DogProtocol dashboard overview",
+      },
+    ],
+  },
+  {
+    id: 12,
+    title: "MollyBet Betting Platform UI",
+    description:
+      "Interface design for MollyBet, focusing on odds visibility, quick actions, and responsive layouts tailored for heavy daily usage by professional users.",
+    category: "uiux",
+    thumbnailUrl: "/images/uiux6/mollybet-web.jfif",
+    liveUrl: null,
+    technologies: ["Figma", "Product UI", "Interaction Design"],
+    images: [
+      {
+        id: 14,
+        projectId: 12,
+        imageUrl: "/images/uiux6/mollybet-web.jfif",
+        caption: "MollyBet web UI",
+      },
+    ],
+  },
+  // === Graphic Design Projects ===
+  {
+    id: 13,
+    title: "Telenor Digital Campaign Visual",
+    description:
+      "A high-impact social media visual for Telenor, designed to capture attention in fast-scrolling feeds with bold typography and strong focal imagery.",
+    category: "graphic",
+    subCategory: "social",
+    thumbnailUrl: "/images/gd/telenor-advert.PNG",
+    liveUrl: null,
+    technologies: ["Photoshop", "Social Media Design"],
+    images: [
+      {
+        id: 15,
+        projectId: 13,
+        imageUrl: "/images/gd/telenor-advert.PNG",
+        caption: "Telenor promotional creative",
+      },
+    ],
+  },
+  {
+    id: 14,
+    title: "LAYS Packaging Concept",
+    description:
+      "Packaging design exploration for LAYS, focusing on flavor differentiation, shelf presence, and clear hierarchy between brand, variant, and messaging.",
+    category: "graphic",
+    subCategory: "package",
+    thumbnailUrl: "/images/gd2/LAYS-packaging.PNG",
+    liveUrl: null,
+    technologies: ["Illustrator", "Packaging Design"],
+    images: [
+      {
+        id: 16,
+        projectId: 14,
+        imageUrl: "/images/gd2/LAYS-packaging.PNG",
+        caption: "LAYS chips packaging design",
+      },
+    ],
+  },
+  {
+    id: 15,
+    title: "Maula Jatt Movie Poster",
+    description:
+      "Poster design for Maula Jatt movie, blending strong contrast, expressive typography, and music‑driven visual elements for event promotion.",
+    category: "graphic",
+    subCategory: "social",
+    thumbnailUrl: "/images/gd3/MJ-Poster.PNG",
+    liveUrl: null,
+    technologies: ["Photoshop", "Poster Design"],
+    images: [
+      {
+        id: 17,
+        projectId: 15,
+        imageUrl: "/images/gd3/MJ-Poster.PNG",
+        caption: "MJ movie promotional poster",
+      },
+    ],
+  },
+  {
+    id: 16,
+    title: "Weights & Measures Logo",
+    description:
+      "Logo design for Weights & Measures, balancing precise geometric forms with a memorable mark that communicates accuracy and measurement.",
+    category: "graphic",
+    subCategory: "logo",
+    thumbnailUrl: "/images/gd4/weights&measures-logo.png",
+    liveUrl: null,
+    technologies: ["Illustrator", "Logo Design"],
+    images: [
+      {
+        id: 18,
+        projectId: 16,
+        imageUrl: "/images/gd4/weights&measures-logo.png",
+        caption: "Weights & Measures brand mark",
+      },
+    ],
+  },
+  {
+    id: 17,
+    title: "TCP Seafood Brand Logo",
+    description:
+      "Brand mark for TCP Seafood, combining ocean-inspired forms with clean typography to build trust and freshness in the food industry.",
+    category: "graphic",
+    subCategory: "logo",
+    thumbnailUrl: "/images/gd5/tcp-seafood-logo.jfif",
+    liveUrl: null,
+    technologies: ["Illustrator", "Brand Identity"],
+    images: [
+      {
+        id: 19,
+        projectId: 17,
+        imageUrl: "/images/gd5/tcp-seafood-logo.jfif",
+        caption: "TCP Seafood logo design",
+      },
+    ],
+  },
+  {
+    id: 18,
+    title: "Forever Medical Logo",
+    description:
+      "Logo exploration for a medical or wellness brand, focusing on trust, care, and longevity through color, iconography, and typography.",
+    category: "graphic",
+    subCategory: "logo",
+    thumbnailUrl: "/images/gd6/forever-logo-medical.jfif",
+    liveUrl: null,
+    technologies: ["Illustrator", "Logo Design"],
+    images: [
+      {
+        id: 20,
+        projectId: 18,
+        imageUrl: "/images/gd6/forever-logo-medical.jfif",
+        caption: "Forever Medical logo concept",
+      },
+    ],
+  },
+];
 
 export interface IStorage {
   getAllProjects(): Promise<ProjectWithImages[]>;
   getProject(id: number): Promise<ProjectWithImages | undefined>;
   getProjectsByCategory(category: string): Promise<ProjectWithImages[]>;
-  createProject(project: InsertProject): Promise<Project>;
-  addProjectImage(projectId: number, imageUrl: string, caption?: string): Promise<void>;
   seedData(): Promise<void>;
 }
 
-export class DatabaseStorage implements IStorage {
+class StaticStorage implements IStorage {
   async getAllProjects(): Promise<ProjectWithImages[]> {
-    const allProjects = await db.select().from(projects);
-    const results: ProjectWithImages[] = [];
-    
-    for (const project of allProjects) {
-      const images = await db.select().from(projectImages).where(eq(projectImages.projectId, project.id));
-      results.push({ ...project, images });
-    }
-    
-    return results;
+    return projectsData;
   }
 
   async getProject(id: number): Promise<ProjectWithImages | undefined> {
-    const [project] = await db.select().from(projects).where(eq(projects.id, id));
-    if (!project) return undefined;
-    
-    const images = await db.select().from(projectImages).where(eq(projectImages.projectId, id));
-    return { ...project, images };
+    return projectsData.find((p) => p.id === id);
   }
 
   async getProjectsByCategory(category: string): Promise<ProjectWithImages[]> {
-    const categoryProjects = await db.select().from(projects).where(eq(projects.category, category));
-    const results: ProjectWithImages[] = [];
-    
-    for (const project of categoryProjects) {
-      const images = await db.select().from(projectImages).where(eq(projectImages.projectId, project.id));
-      results.push({ ...project, images });
-    }
-    
-    return results;
+    return projectsData.filter((p) => p.category === category);
   }
 
-  async createProject(project: InsertProject): Promise<Project> {
-    const [newProject] = await db.insert(projects).values(project).returning();
-    return newProject;
-  }
-
-  async addProjectImage(projectId: number, imageUrl: string, caption?: string): Promise<void> {
-    await db.insert(projectImages).values({ projectId, imageUrl, caption });
-  }
-
+  // No-op for compatibility with existing bootstrapping code.
   async seedData(): Promise<void> {
-    const existing = await this.getAllProjects();
-    if (existing.length > 0) return;
-
-    // Full Stack Projects
-    for (let i = 1; i <= 6; i++) {
-      const p = await this.createProject({
-        title: `E-Commerce Platform ${i}`,
-        description: "A full-stack e-commerce solution with payment integration and real-time inventory management.",
-        category: "fullstack",
-        thumbnailUrl: "https://images.unsplash.com/photo-1557821552-17105176677c?w=800&q=80",
-        liveUrl: "https://example.com",
-        technologies: ["React", "Node.js", "PostgreSQL"],
-      });
-    }
-
-    // UI/UX Projects
-    for (let i = 1; i <= 6; i++) {
-      const p = await this.createProject({
-        title: `Finance App Redesign ${i}`,
-        description: "Complete user experience overhaul for a fintech mobile application focusing on accessibility and clarity.",
-        category: "uiux",
-        thumbnailUrl: "https://images.unsplash.com/photo-1586717791821-3f44a5638d48?w=800&q=80",
-        technologies: ["Figma", "Prototyping", "User Research"],
-      });
-      // Add detailed images
-      await this.addProjectImage(p.id, "https://images.unsplash.com/photo-1586717791821-3f44a5638d48?w=800&q=80", "Dashboard View");
-      await this.addProjectImage(p.id, "https://images.unsplash.com/photo-1611162617474-5b21e879e113?w=800&q=80", "Mobile Responsiveness");
-      await this.addProjectImage(p.id, "https://images.unsplash.com/photo-1507238691740-187a5b1d37b8?w=800&q=80", "User Flow");
-    }
-
-    // Graphic Design Projects
-    for (let i = 1; i <= 6; i++) {
-      const p = await this.createProject({
-        title: `Brand Identity: Solstice ${i}`,
-        description: "Comprehensive branding package including logo design, stationery, and brand guidelines.",
-        category: "graphic",
-        thumbnailUrl: "https://images.unsplash.com/photo-1626785774573-4b799314346d?w=800&q=80",
-        technologies: ["Adobe Illustrator", "Photoshop", "InDesign"],
-      });
-      // Add detailed images
-      await this.addProjectImage(p.id, "https://images.unsplash.com/photo-1626785774573-4b799314346d?w=800&q=80", "Logo Concepts");
-      await this.addProjectImage(p.id, "https://images.unsplash.com/photo-1600607686527-6fb886090705?w=800&q=80", "Business Cards");
-    }
+    return;
   }
 }
 
-export const storage = new DatabaseStorage();
+export const storage = new StaticStorage();

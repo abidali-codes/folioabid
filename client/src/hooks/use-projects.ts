@@ -6,7 +6,8 @@ export type Project = {
   id: number;
   title: string;
   description: string;
-  category: "fullstack" | "uiux" | "graphic";
+  category: "fullstack" | "uiux" | "graphic" | "animation";
+  subCategory?: "logo" | "package" | "social" | "other";
   thumbnailUrl: string;
   liveUrl: string | null;
   technologies: string[] | null;

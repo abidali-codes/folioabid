@@ -21,14 +21,14 @@ export default function Portfolio() {
   ) || [];
 
   return (
-    <div className="min-h-screen pt-32 pb-20 px-6">
+    <div className="min-h-screen pt-24 md:pt-32 pb-20 px-4 md:px-6">
       <div className="max-w-7xl mx-auto">
         {/* Header */}
-        <div className="text-center max-w-3xl mx-auto mb-16">
+        <div className="text-center max-w-3xl mx-auto mb-12 md:mb-16">
           <motion.h1 
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            className="font-display text-4xl md:text-6xl font-bold mb-6"
+            className="font-display text-3xl md:text-4xl lg:text-6xl font-bold mb-4 md:mb-6"
           >
             Selected Works
           </motion.h1>
@@ -36,27 +36,29 @@ export default function Portfolio() {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.1 }}
-            className="text-lg text-muted-foreground"
+            className="text-base md:text-lg text-muted-foreground px-4"
           >
             A collection of projects showcasing my journey across development and design.
           </motion.p>
         </div>
 
         {/* Filter Tabs */}
-        <div className="flex justify-center mb-12">
-          <Tabs defaultValue="all" value={activeTab} onValueChange={setActiveTab}>
-            <TabsList className="h-12 bg-secondary/50 p-1 rounded-full border border-border/50">
-              {categories.map((cat) => (
-                <TabsTrigger
-                  key={cat.id}
-                  value={cat.id}
-                  className="rounded-full px-6 h-full data-[state=active]:bg-white data-[state=active]:shadow-sm transition-all"
-                >
-                  {cat.label}
-                </TabsTrigger>
-              ))}
-            </TabsList>
-          </Tabs>
+        <div className="mb-8 md:mb-12 flex justify-center">
+          <div className="overflow-x-auto scrollbar-hide max-w-full">
+            <Tabs defaultValue="all" value={activeTab} onValueChange={setActiveTab}>
+              <TabsList className="inline-flex h-12 bg-secondary/50 p-1 rounded-full border border-border/50 gap-1">
+                {categories.map((cat) => (
+                  <TabsTrigger
+                    key={cat.id}
+                    value={cat.id}
+                    className="rounded-full px-4 md:px-6 h-10 text-sm data-[state=active]:bg-white data-[state=active]:shadow-sm transition-all whitespace-nowrap"
+                  >
+                    {cat.label}
+                  </TabsTrigger>
+                ))}
+              </TabsList>
+            </Tabs>
+          </div>
         </div>
 
         {/* Projects Grid */}
@@ -67,7 +69,7 @@ export default function Portfolio() {
         ) : (
           <motion.div 
             layout
-            className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8"
+            className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8"
           >
             <AnimatePresence mode="popLayout">
               {filteredProjects.map((project, index) => (

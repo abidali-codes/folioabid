@@ -1,4 +1,7 @@
+import "dotenv/config";
 import express, { type Request, Response, NextFunction } from "express";
+import path from "path";
+import { fileURLToPath } from "url";
 import { registerRoutes } from "./routes";
 import { serveStatic } from "./static";
 import { createServer } from "http";
@@ -59,6 +62,11 @@ app.use((req, res, next) => {
   next();
 });
 
+// Serve local project images from the `server/images` folder at `/images`
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+app.use("/images", express.static(path.join(__dirname, "images")));
+
 (async () => {
   await registerRoutes(httpServer, app);
 
@@ -90,14 +98,15 @@ app.use((req, res, next) => {
   // this serves both the API and the client.
   // It is the only port that is not firewalled.
   const port = parseInt(process.env.PORT || "5000", 10);
-  httpServer.listen(
-    {
-      port,
-      host: "0.0.0.0",
-      reusePort: true,
-    },
-    () => {
-      log(`serving on port ${port}`);
-    },
-  );
+
+if (process.env.NODE_ENV === "production") {
+  httpServer.listen(port, () => {
+    log(`serving on http://localhost:${port}`);
+  });
+}
+
+httpServer.listen(port, () => {
+  log(`serving on http://localhost:${port}`);
+});
+
 })();
