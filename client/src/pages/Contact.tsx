@@ -98,7 +98,7 @@ export default function Contact() {
                 <div className="min-w-0">
                   <h3 className="font-bold text-lg">Email Me</h3>
                   <a href="mailto:codenergy26@gmail.com" className="text-muted-foreground hover:text-primary transition-colors break-all">
-                    abidali@gmail.com
+                    nadeemsaeed@gmail.com
                   </a>
                 </div>
               </div>

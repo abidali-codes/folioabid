@@ -27,7 +27,7 @@ export function Navigation() {
       <div className="max-w-7xl mx-auto flex items-center justify-between">
         <Link href="/" className="group relative z-10" onClick={closeMobileMenu}>
           <span className="font-display text-xl md:text-2xl font-bold tracking-tight text-foreground group-hover:text-primary transition-colors duration-300">
-            Abid Ali<span className="text-primary">.</span>
+            Nadeem Saeed<span className="text-primary">.</span>
           </span>
         </Link>
 

@@ -72,7 +72,7 @@ export default function Home() {
                   animate={{ opacity: textRevealed ? 0 : 1 }}
                   transition={{ duration: 0.5 }}
                 >
-                  Hi, I'm Abid Ali.
+                  Hi, I'm Nadeem Saeed.
                 </motion.span>
                 <motion.span
                   initial={{ opacity: 0 }}
@@ -80,7 +80,7 @@ export default function Home() {
                   transition={{ duration: 0.5 }}
                   className="absolute top-0 left-0"
                 >
-                  Hi, I'm Abid Ali.
+                  Hi, I'm Nadeem Saeed.
                 </motion.span>
               </motion.span>
               <br />
